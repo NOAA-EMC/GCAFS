@@ -288,6 +288,18 @@ def input_args(*argv):
         parser.add_argument('--yaml', help='Defaults to substitute from', type=str, required=False,
                             default=os.path.join(_top, 'parm/config/sfs/yaml/defaults.yaml'))
         return parser
+    
+    def _gcafs_args(parser):
+        parser.add_argument('--start', help='restart mode: warm or cold', type=str,
+                            choices=['warm', 'cold'], required=False, default='cold')
+        parser.add_argument('--configdir', help=SUPPRESS, type=str, required=False,
+                            default=os.path.join(_top, 'parm/config/gcafs'))
+        parser.add_argument('--yaml', help='Defaults to substitute from', type=str, required=False,
+                            default=os.path.join(_top, 'parm/config/gcafs/yaml/defaults.yaml'))
+        # parser.add_argument('--run', help='RUN to start the experiment',
+        #                     type=str, required=False, default='gcafs')
+        print('In _gcafs_args:')
+        return parser
 
     description = """
         Setup files and directories to start a GFS parallel.\n
@@ -303,6 +315,7 @@ def input_args(*argv):
     gfs = sysparser.add_parser('gfs', help='arguments for GFS')
     gefs = sysparser.add_parser('gefs', help='arguments for GEFS')
     sfs = sysparser.add_parser('sfs', help='arguments for SFS')
+    gcafs = sysparser.add_parser('gcafs', help='arguments for GCAFS')
 
     gfsmodeparser = gfs.add_subparsers(dest='mode')
     gfscycled = gfsmodeparser.add_parser('cycled', help='arguments for cycled mode')
@@ -313,12 +326,15 @@ def input_args(*argv):
 
     sfsmodeparser = sfs.add_subparsers(dest='mode')
     sfsforecasts = sfsmodeparser.add_parser('forecast-only', help='arguments for forecast-only mode')
+    
+    gcafsmodeparser = gcafs.add_subparsers(dest='mode')
+    gcafsforecasts = gcafsmodeparser.add_parser('forecast-only', help='arguments for forecast-only mode')
 
     # Common arguments across all modes
-    for subp in [gfscycled, gfsforecasts, gefsforecasts, sfsforecasts]:
+    for subp in [gfscycled, gfsforecasts, gefsforecasts, sfsforecasts, gcafsforecasts]:
         subp = _common_args(subp)
 
-    # GFS-only arguments
+    # GFS 
     for subp in [gfscycled, gfsforecasts]:
         subp = _gfs_args(subp)
 
@@ -326,8 +342,8 @@ def input_args(*argv):
     for subp in [gfscycled, gefsforecasts, sfsforecasts]:
         subp = _any_ensemble_args(subp)
 
-    # GFS/GEFS forecast-only additional arguments
-    for subp in [gfsforecasts, gefsforecasts, sfsforecasts]:
+    # All forecast-only additional arguments
+    for subp in [gfsforecasts, gefsforecasts, sfsforecasts, gcafsforecasts]:
         subp = _any_forecast_args(subp)
 
     # cycled mode additional arguments
@@ -341,8 +357,14 @@ def input_args(*argv):
     # SFS arguments
     for subp in [sfsforecasts]:
         subp = _sfs_args(subp)
+    
+    # GCAFS forecast-only arguments
+    for subp in [gcafsforecasts]:
+        subp = _gcafs_args(subp)
 
     inputs = parser.parse_args(list(*argv) if len(argv) else None)
+    
+    print(inputs)
 
     # Validate dates
     if inputs.edate is None:
