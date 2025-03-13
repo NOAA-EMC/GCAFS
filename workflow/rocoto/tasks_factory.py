@@ -2,6 +2,7 @@ from wxflow import Factory
 from rocoto.gfs_tasks import GFSTasks
 from rocoto.gefs_tasks import GEFSTasks
 from rocoto.sfs_tasks import SFSTasks
+from rocoto.gcafs_tasks import GCAFSTasks
 
 
 tasks_factory = Factory('Tasks')

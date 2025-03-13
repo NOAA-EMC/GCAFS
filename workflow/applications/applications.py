@@ -14,6 +14,12 @@ logger = getLogger(__name__.split('.')[-1])
 
 
 class AppConfigInit(ABCMeta):
+    '''
+    Metaclass to handle two-phase initialization of application configs
+
+    This metaclass allows child classes to define additional settings before
+    completing initialization.
+    '''
     def __call__(cls, *args, **kwargs):
         '''
         We want the child classes to be able to define additional settings
@@ -28,16 +34,45 @@ class AppConfigInit(ABCMeta):
 
 
 class AppConfig(ABC, metaclass=AppConfigInit):
+    '''
+    Abstract base class for application configurations
+
+    This class provides the base functionality for configuring different
+    workflow applications.
+
+    Parameters
+    ----------
+    conf : Configuration
+        Configuration object containing experiment settings
+
+    Attributes
+    ----------
+    scheduler : str
+        Name of scheduler being used
+    mode : str
+        Run mode (cycled or forecast-only)
+    net : str
+        Network name
+    runs : list
+        List of runs to process
+    configs : dict
+        Dictionary of configuration settings
+    run_options : dict
+        Dictionary of run-specific options
+    task_names : dict
+        Dictionary mapping runs to task lists
+    '''
 
     VALID_MODES = ['cycled', 'forecast-only']
 
     def __init__(self, conf: Configuration) -> None:
-
         self.scheduler = Host().scheduler
 
         # Get the most basic settings from config.base to determine
         # experiment type ({NET}_{MODE})
         base = conf.parse_config('config.base')
+        for key, value in sorted(base.items()):
+            print(f'{key} = {value}')
 
         self.mode = base['MODE']
         if self.mode not in self.VALID_MODES:
@@ -50,28 +85,49 @@ class AppConfig(ABC, metaclass=AppConfigInit):
 
     def _init_finalize(self, conf: Configuration):
         '''
-        Finalize object initialization calling subclass methods
+        Complete initialization after child class setup
+
+        Parameters
+        ----------
+        conf : Configuration
+            Configuration object
         '''
 
         # Get run-, net-, and mode-based options
         self.run_options = self._get_run_options(conf)
+        print(f"Run options initialized: {self.run_options}")
 
         # Get task names and runs for the application
         self.task_names = self.get_task_names()
+        print(f"Task names initialized: {self.task_names}")
 
-        # Initialize the configs and model_apps dictionaries
-        self.configs = dict.fromkeys(self.runs)
+        # Initialize the configs dictionary for each run
+        self.configs = {run: {} for run in self.runs}
+        print(f"Initial configs dictionary: {self.configs}")
 
         # Now configure the experiment for each valid run
         for run in self.runs:
-            self.configs[run] = self._source_configs(conf, run=run, log=False)
+            print(f"Sourcing configs for run: {run}")
+            self.configs[run] = self._source_configs(conf, run=run, log=True)
+
+        print(f"Final configs: {self.configs}")
 
     def _get_run_options(self, conf: Configuration) -> Dict[str, Any]:
         '''
-        Determine the do_* and APP options for each RUN by sourcing config.base
-        for each RUN and collecting the flags into self.run_options.  Note that
-        this method is overloaded so additional NET- and MODE-dependent flags
-        can be set.
+        Get base run options for application. Determine the do_* and APP options for
+        each RUN by sourcing config.base for each RUN and collect the flags into
+        self.run_options. Note that this method is overloaded so additional NET- and
+        MODE-specific options can be set.
+
+        Parameters
+        ----------
+        conf : Configuration
+            Configuration object
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of run options
         '''
 
         run_options = {run: {} for run in dict.fromkeys(self.runs)}
@@ -99,13 +155,19 @@ class AppConfig(ABC, metaclass=AppConfigInit):
             run_options[run]['do_archcom'] = run_base.get('DO_ARCHCOM', False)
 
             run_options[run]['do_atm'] = run_base.get('DO_ATM', True)
+            run_options[run]['do_aero'] = run_base.get('DO_AERO', False)
             run_options[run]['do_wave'] = run_base.get('DO_WAVE', False)
             run_options[run]['do_ocean'] = run_base.get('DO_OCN', False)
             run_options[run]['do_ice'] = run_base.get('DO_ICE', False)
-            
+
             run_options[run]['do_prep_obs_aero'] = run_base.get('DO_PREP_OBS_AERO', False)
+            print(run_options[run]['app'])
+            if run_options[run]['app'] == 'ATMA':
+                run_options[run]['do_aero_init'] = run_base.get('DO_AERO_INIT', True)
+                run_options[run]['do_aero_fcst'] = run_base.get('DO_AERO_FCST', True)
+                run_options[run]['do_aero'] = run_base.get('DO_AERO', True)
             run_options[run]['do_aero_anl'] = run_base.get('DO_AERO_ANL', False)
-            run_options[run]['do_aero_fcst'] = run_base.get('DO_AERO_FCST', False)
+            run_options[run]['do_aero_fcst'] = run_base.get('DO_AERO_FCST', True)
             run_options[run]['do_aero_init'] = run_base.get('DO_AERO_INIT', True)
 
             if run_options[run]['do_archcom'] and run_base.get('ARCHCOM_TO', "") == "globus_hpss":
@@ -152,11 +214,23 @@ class AppConfig(ABC, metaclass=AppConfigInit):
         pass
 
     def _source_configs(self, conf: Configuration, run: str = "gfs", log: bool = True) -> Dict[str, Any]:
-        """
-        Given the configuration object used to initialize this application,
-        source the configurations for each config and return a dictionary
-        Every config depends on "config.base"
-        """
+        '''
+        Source all required configuration files
+
+        Parameters
+        ----------
+        conf : Configuration
+            Configuration object
+        run : str, optional
+            Name of run, defaults to "gfs"
+        log : bool, optional
+            Whether to log config sourcing, defaults to True
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of configuration settings
+        '''
 
         # Include config.base by its lonesome and update it
         configs = {'base': conf.parse_config('config.base', RUN=run)}
@@ -180,7 +254,7 @@ class AppConfig(ABC, metaclass=AppConfigInit):
                 files += ['config.atmensanl', f'config.{config}']
             elif 'wave' in config:
                 files += ['config.wave', f'config.{config}']
-            elif config in ['aerosol_init']: # aerosol init
+            elif config in ['aerosol_init']:
                 files += ['config.aerosol_init', f'config.{config}']
             else:
                 files += [f'config.{config}']

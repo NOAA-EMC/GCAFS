@@ -66,6 +66,12 @@ def main(*argv):
     net = base['NET']
     mode = base['MODE']
 
+    print("Setting up Rocoto XML for the following configuration:")
+    print(f"  Network: {net}")
+    print(f"  Mode: {mode}")
+    print(f"  Experiment Directory: {user_inputs.expdir}")
+
+
     # Configure the application
     app_config = app_config_factory.create(f'{net}_{mode}', cfg)
 

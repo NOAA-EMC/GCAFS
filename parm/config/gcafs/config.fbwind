@@ -1,11 +1,1 @@
-#! /usr/bin/env bash
-
-########## config.gempak ##########
-# GFS fbwind step specific
-
-echo "BEGIN: config.fbwind"
-
-# Get task specific resources
-source "${EXPDIR}/config.resources" fbwind
-
-echo "END: config.fbwind"
+../gfs/config.fbwind

@@ -1,11 +1,1 @@
-#! /usr/bin/env bash
-
-########## config.wavepostpnt ##########
-# Wave steps specific
-
-echo "BEGIN: config.wavepostpnt"
-
-# Get task specific resources
-source "${EXPDIR}/config.resources" wavepostpnt
-
-echo "END: config.wavepostpnt"
+../gfs/config.wavepostpnt

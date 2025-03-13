@@ -195,11 +195,11 @@ class GCAFSTasks(Tasks):
             data = [f'{restart_path}/', file]
             dep_dict = {'type': 'data', 'data': data, 'offset': [offset, f"-{timedelta_to_HMS(self._base['interval_gdas'])}"]}
             deps.append(rocoto.add_dependency(dep_dict))
-        
+
         # add stage_ic depndenancy to aerosol_init
         dep_dict = {'type': 'task', 'name': f'{self.run}_stage_ic'}
         deps.append(rocoto.add_dependency(dep_dict))
-        
+
         # TODO: if DO_CALC_INCREMENT make sure files exist
         # if self._base['DO_CALC_INCREMENT'] == 'YES':
         #   data = f'{self._base["COM_INCREMENTS"]}/gcafs.t{self.cyc}z.atmf{self._base["INTERVAL_GFS"]}.nc'
@@ -888,11 +888,9 @@ class GCAFSTasks(Tasks):
     def _fcst_forecast_only(self):
         dependencies = []
 
-        # Add stage_ic dependency 
+        # Add stage_ic dependency
         dep_dict = {'type': 'task', 'name': f'{self.run}_stage_ic'}
         dependencies.append(rocoto.add_dependency(dep_dict))
-        
-        
 
         if self.options['do_wave']:
             wave_job = 'waveprep' if self.options['app'] in ['ATMW'] else 'waveinit'
