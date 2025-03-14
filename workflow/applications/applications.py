@@ -71,8 +71,6 @@ class AppConfig(ABC, metaclass=AppConfigInit):
         # Get the most basic settings from config.base to determine
         # experiment type ({NET}_{MODE})
         base = conf.parse_config('config.base')
-        for key, value in sorted(base.items()):
-            print(f'{key} = {value}')
 
         self.mode = base['MODE']
         if self.mode not in self.VALID_MODES:
@@ -95,22 +93,16 @@ class AppConfig(ABC, metaclass=AppConfigInit):
 
         # Get run-, net-, and mode-based options
         self.run_options = self._get_run_options(conf)
-        print(f"Run options initialized: {self.run_options}")
 
         # Get task names and runs for the application
         self.task_names = self.get_task_names()
-        print(f"Task names initialized: {self.task_names}")
 
         # Initialize the configs dictionary for each run
         self.configs = {run: {} for run in self.runs}
-        print(f"Initial configs dictionary: {self.configs}")
 
         # Now configure the experiment for each valid run
         for run in self.runs:
-            print(f"Sourcing configs for run: {run}")
             self.configs[run] = self._source_configs(conf, run=run, log=True)
-
-        print(f"Final configs: {self.configs}")
 
     def _get_run_options(self, conf: Configuration) -> Dict[str, Any]:
         '''
@@ -161,7 +153,6 @@ class AppConfig(ABC, metaclass=AppConfigInit):
             run_options[run]['do_ice'] = run_base.get('DO_ICE', False)
 
             run_options[run]['do_prep_obs_aero'] = run_base.get('DO_PREP_OBS_AERO', False)
-            print(run_options[run]['app'])
             if run_options[run]['app'] == 'ATMA':
                 run_options[run]['do_aero_init'] = run_base.get('DO_AERO_INIT', True)
                 run_options[run]['do_aero_fcst'] = run_base.get('DO_AERO_FCST', True)

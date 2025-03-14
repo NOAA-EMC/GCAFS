@@ -29,7 +29,7 @@ source "${PARMgfs}/config/gfs/config.ufs" ${string}
 
 # Forecast length for GFS forecast
 case ${RUN} in
-  *gfs)
+  *gfs|gcafs)
     # Convert comma-separated string into bash array
     IFS=', ' read -ra segments <<< "${FCST_SEGMENTS}"
     # Determine MIN and MAX based on the forecast segment
@@ -44,6 +44,10 @@ case ${RUN} in
     export FHOUT_HF=${FHOUT_HF_GFS}
     export FHOUT_OCN=${FHOUT_OCN_GFS}
     export FHOUT_ICE=${FHOUT_ICE_GFS}
+    ;;
+  *gcafs)
+    export FHOUT=$(FHOUT_GFS)
+    export FHOUT_HF=$(FHOUT_HF_GFS)
     ;;
   *gdas)
     export FHMAX_HF=0

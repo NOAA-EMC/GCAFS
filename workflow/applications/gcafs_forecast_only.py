@@ -27,10 +27,10 @@ class GCAFSForecastOnlyAppConfig(AppConfig):
         super().__init__(conf)
 
         base = conf.parse_config('config.base')
-        print(f"Initializing GCAFS with base config: {base}")
+        # print(f"Initializing GCAFS with base config: {base}")
         self.run = base.get('RUN', 'GCAFS').lower()  # Ensure lowercase
         self.runs = [self.run]
-        print(f"GCAFS runs set to: {self.runs}")
+        # print(f"GCAFS runs set to: {self.runs}")
 
     def _get_run_options(self, conf: Configuration) -> Dict[str, Any]:
         '''
@@ -57,7 +57,7 @@ class GCAFSForecastOnlyAppConfig(AppConfig):
                 'do_aero': True,
                 'exp_warm_start': conf.parse_config('config.base').get('EXP_WARM_START', False)
             })
-            print(f"Updated run options for {run}: {run_options[run]}")
+            # print(f"Updated run options for {run}: {run_options[run]}")
 
         return run_options
 
@@ -76,7 +76,7 @@ class GCAFSForecastOnlyAppConfig(AppConfig):
             List of config file names required for this workflow
         '''
 
-        print(f"Getting app configs for run: {run}")
+        # print(f"Getting app configs for run: {run}")
         configs = []
         options = self.run_options[run]
 
@@ -86,9 +86,9 @@ class GCAFSForecastOnlyAppConfig(AppConfig):
         configs += ['stage_ic']
 
         # Add aerosol initialization step for GCAFS
-        print(options['do_aero_fcst'])
+        # print(options['do_aero_fcst'])
         if options['do_aero_fcst']:
-            print('here')
+            # print('here')
             configs += ['aerosol_init']
 
         configs += ['fcst', 'arch_vrfy', 'cleanup']
