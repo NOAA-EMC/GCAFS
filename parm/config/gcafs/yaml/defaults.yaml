@@ -26,6 +26,8 @@ base:
   APP: "ATMA"
   DO_AERO: "YES"
   DO_ATM: "YES"
+  USE_OCN_ENS_PERTURB_FILES: "NO"
+  USE_ATM_ENS_PERTURB_FILES: "NO"
 
 aerosol_init:
   AERO_CONFIG_DIR: "{FIXgfs}/ufs/gocart"
