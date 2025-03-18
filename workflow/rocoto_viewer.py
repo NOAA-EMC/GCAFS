@@ -456,7 +456,15 @@ def get_arguments():
         usage('Booth database-file and workflow-file must be specified')
 
     if (not list_tasks) and (workflow_file is not None and database_file is not None):
-        # debug.write('database_file_agmented: '+database_file_agmented+'\n')
+        if not os.path.exists(database_file):
+            print(f"\nDatabase file {database_file} not found.")
+            print("Running rocotorun to generate it...")
+            try:
+                subprocess.run([rocotorun, '-w', workflow_file, '-d', database_file], check=True)
+                print("Database file created successfully.\n")
+            except subprocess.CalledProcessError as e:
+                usage(f"Failed to create database file: {str(e)}")
+
         if not isSQLite3(database_file):
             usage(f'{database_file} is not a SQLite3 database file')
         if not isRocotoWorkflow(workflow_file):
