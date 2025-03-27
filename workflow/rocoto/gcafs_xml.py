@@ -9,6 +9,10 @@ from typing import Dict
 class GCAFSRocotoXML(RocotoXML):
 
     def __init__(self, app_config: AppConfig, rocoto_config: Dict) -> None:
+        # Make sure we're using 'gcafs' as the run type
+        if 'RUN' in app_config.configs['base'] and app_config.configs['base']['RUN'] == 'gfs':
+            app_config.configs['base']['RUN'] = 'gcafs'
+
         super().__init__(app_config, rocoto_config)
 
     def get_cycledefs(self):
@@ -19,12 +23,12 @@ class GCAFSRocotoXML(RocotoXML):
         edate_str = edate.strftime("%Y%m%d%H%M")
         interval_str = timedelta_to_HMS(interval)
         strings = []
-        strings.append(f'\t<cycledef group="gefs">{sdate_str} {edate_str} {interval_str}</cycledef>')
+        strings.append(f'\t<cycledef group="gcafs">{sdate_str} {edate_str} {interval_str}</cycledef>')
 
         date2 = sdate + interval
         if date2 <= edate:
             date2_str = date2.strftime("%Y%m%d%H%M")
-            strings.append(f'\t<cycledef group="gefs_seq">{date2_str} {edate_str} {interval_str}</cycledef>')
+            strings.append(f'\t<cycledef group="gcafs_seq">{date2_str} {edate_str} {interval_str}</cycledef>')
 
         strings.append('')
         strings.append('')

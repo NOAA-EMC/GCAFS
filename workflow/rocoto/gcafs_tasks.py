@@ -1,5 +1,5 @@
 """
-GCAFS (Global Climate and Air Force System) Tasks module.
+GCAFS (Global Chemistry and Aerosol Forecast System) Tasks module.
 
 This module defines the tasks for the GCAFS workflow using Rocoto.
 It provides task definitions for stage initialization, forecast,
@@ -8,6 +8,7 @@ post-processing, and archiving tasks.
 from applications.applications import AppConfig
 from rocoto.tasks import Tasks
 import rocoto.rocoto as rocoto
+from wxflow import timedelta_to_HMS
 
 
 class GCAFSTasks(Tasks):
@@ -22,12 +23,12 @@ class GCAFSTasks(Tasks):
     app_config : AppConfig
         Application configuration object
     run : str
-        Run type identifier (e.g., 'gcafs', 'gdas')
+        Run type identifier (e.g., 'gcafs', 'gfs')
     """
 
     def __init__(self, app_config: AppConfig, run: str) -> None:
         """
-        Initialize the GEFSTasks class.
+        Initialize the GCAFSTasks class.
 
         Parameters
         ----------
@@ -40,6 +41,10 @@ class GCAFSTasks(Tasks):
         -------
         None
         """
+        # Here we ensure we're using 'gcafs' as the run type internally
+        if run == 'gfs':
+            run = 'gcafs'
+
         super().__init__(app_config, run)
 
     def stage_ic(self):
