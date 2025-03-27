@@ -6,7 +6,7 @@ from wxflow import to_timedelta, timedelta_to_HMS
 from typing import Dict
 
 
-class GEFSRocotoXML(RocotoXML):
+class GCAFSRocotoXML(RocotoXML):
 
     def __init__(self, app_config: AppConfig, rocoto_config: Dict) -> None:
         super().__init__(app_config, rocoto_config)
