@@ -14,11 +14,11 @@ logger = Logger(level='DEBUG', colored_log=True)
 
 if __name__ == '__main__':
 
-  # Take configuration from environment and cast it as python dictionary
-  config = cast_strdict_as_dtypedict(os.environ)
+    # Take configuration from environment and cast it as python dictionary
+    config = cast_strdict_as_dtypedict(os.environ)
 
-  # Instantiate the chemistry analysis task
-  ChemInit = ChemistryInit(config)
+    # Instantiate the chemistry analysis task
+    ChemInit = ChemistryInit(config)
 
-  # Initialize GCAFS Chemistry Constituent Analysis
-  ChemInit.initialize()
+    # Initialize GCAFS Chemistry Constituent Analysis
+    ChemInit.initialize()

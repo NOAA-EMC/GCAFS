@@ -14,7 +14,8 @@ def main():
 
     # instantiate the forecast
     config = cast_strdict_as_dtypedict(os.environ)
-    save_as_yaml(config, f'{config.EXPDIR}/fcst.yaml')  # Temporarily save the input to the Forecast
+    # Temporarily save the input to the Forecast
+    save_as_yaml(config, f'{config.EXPDIR}/fcst.yaml')
 
     fcst = GFSForecast(config)
     fcst.initialize()
