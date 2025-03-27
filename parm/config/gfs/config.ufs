@@ -115,7 +115,13 @@ case "${fv3_res}" in
             export layout_y=4
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=2
+          elif [[ "${RUN}" = *gcafs ]]; then
+            export layout_x=4
+            export layout_y=4
+            export WRITE_GROUP=2
+            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=2
           fi
+
           export DELTIM=450
           export layout_x_nest=12
           export layout_y_nest=10
@@ -158,6 +164,11 @@ case "${fv3_res}" in
             export layout_y=6
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=15
+          elif [[ "${RUN}" = *gfs ]]; then
+            export layout_x=5
+            export layout_y=6
+            export WRITE_GROUP=2
+            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=15
           fi
           export layout_x_nest=15
           export layout_y_nest=25
@@ -182,7 +193,7 @@ case "${fv3_res}" in
             export nthreads_ufs=2
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=5
-          elif [[ "${RUN}" = *gdas ]]; then
+          elif [[ "${RUN}" = *gcafs ]]; then
             export nthreads_fv3=2
             export nthreads_ufs=2
             export WRITE_GROUP=2
