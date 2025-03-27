@@ -1,4 +1,3 @@
-
 ###############
 Global Workflow
 ###############
@@ -46,3 +45,5 @@ Table of Contents
    noaa_csp.rst
    errors_faq.rst
    globus_arch.rst
+   configure
+   gcafs
