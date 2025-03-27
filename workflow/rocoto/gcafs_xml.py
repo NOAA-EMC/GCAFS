@@ -10,8 +10,16 @@ class GCAFSRocotoXML(RocotoXML):
 
     def __init__(self, app_config: AppConfig, rocoto_config: Dict) -> None:
         # Make sure we're using 'gcafs' as the run type
-        if 'RUN' in app_config.configs['base'] and app_config.configs['base']['RUN'] == 'gfs':
-            app_config.configs['base']['RUN'] = 'gcafs'
+        # First ensure the keys exist before trying to access them
+        if 'base' in app_config.configs:
+            if app_config.configs['base']['RUN'] == 'gfs':
+                app_config.configs['base']['RUN'] = 'gcafs'
+            elif 'RUN' not in app_config.configs['base']:
+                # If RUN is not defined, set it to 'gcafs'
+                app_config.configs['base']['RUN'] = 'gcafs'
+        else:
+            # If 'base' doesn't exist, initialize it with RUN set to 'gcafs'
+            app_config.configs['base'] = {'RUN': 'gcafs'}
 
         super().__init__(app_config, rocoto_config)
 
