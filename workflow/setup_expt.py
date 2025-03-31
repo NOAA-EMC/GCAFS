@@ -217,6 +217,14 @@ def edit_baseconfig(host, inputs, yaml_dict):
 
     if inputs.mode in ['cycled']:
         extend_dict["@DOHYBVAR@"] = "YES" if inputs.nens > 0 else "NO"
+        # Set EUPD_CYC based on ensemble members
+        if inputs.nens > 0:
+            extend_dict["@EUPD_CYC@"] = "gdas"  # or "both" or "gfs" as needed
+        else:
+            extend_dict["@EUPD_CYC@"] = ""  # Empty string when no ensemble
+    else:
+        # For forecast-only mode
+        extend_dict["@EUPD_CYC@"] = ""  # No EnKF in forecast-only mode
 
     # Further extend/redefine base_dict with extend_dict
     base_dict = dict(base_dict, **extend_dict)
