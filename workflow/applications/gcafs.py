@@ -117,15 +117,15 @@ class GCAFSAppConfig(AppConfig):
 
         tasks += ['fcst', 'atmos_prod']
 
-        # Only add ensemble-related tasks if explicitly configured with nens > 0
-        if options.get('nens', 0) > 0:
+        # Only add ensemble tasks if nens > 0
+        if int(options.get('nens', 0)) > 0:
             tasks += ['atmos_ensstat']
 
-        if options['do_archcom']:
-            tasks += ['arch_tars']
-            if options['do_globusarch']:
-                tasks += ['globus_arch']
+        # if options['do_archcom']:
+        #     tasks += ['arch_tars']
+        #     if options['do_globusarch']:
+        #         tasks += ['globus_arch']
 
-        tasks += ['arch_vrfy', 'cleanup']
+        # tasks += ['arch_vrfy', 'cleanup']
 
         return {f"{self.run}": tasks}
