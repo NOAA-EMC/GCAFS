@@ -140,8 +140,8 @@ export FETCHDIR="@FETCHDIR@"
 
 # Commonly defined parameters in JJOBS
 export envir=${envir:-"prod"}
-export NET="gfs"  # NET is defined in the job-card (ecf)
-export RUN=${RUN:-"gfs"}  # RUN is defined in the job-card (ecf)
+export NET="gcafs"  # NET is defined in the job-card (ecf)
+export RUN=${RUN:-"gcafs"}  # RUN is defined in the job-card (ecf)
 
 # Get all the COM path templates
 source "${EXPDIR}/config.com"
