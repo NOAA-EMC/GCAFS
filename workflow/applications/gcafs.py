@@ -117,7 +117,8 @@ class GCAFSAppConfig(AppConfig):
 
         tasks += ['fcst', 'atmos_prod']
 
-        if options['nens'] > 0:
+        # Only add ensemble-related tasks if explicitly configured with nens > 0
+        if options.get('nens', 0) > 0:
             tasks += ['atmos_ensstat']
 
         if options['do_archcom']:
