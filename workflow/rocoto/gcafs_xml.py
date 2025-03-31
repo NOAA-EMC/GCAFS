@@ -17,6 +17,8 @@ class GCAFSRocotoXML(RocotoXML):
             elif 'RUN' not in app_config.configs['base']:
                 # If RUN is not defined, set it to 'gcafs'
                 app_config.configs['base']['RUN'] = 'gcafs'
+            else:
+                app_config.configs['base']['RUN'] = 'gcafs'
         else:
             # If 'base' doesn't exist, initialize it with RUN set to 'gcafs'
             app_config.configs['base'] = {'RUN': 'gcafs'}

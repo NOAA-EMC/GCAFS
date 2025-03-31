@@ -110,12 +110,7 @@ case "${fv3_res}" in
           if [[ "${RUN}" = *gdas ]]; then
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=2
-          elif [[ "${RUN}" = *gfs ]]; then
-            export layout_x=4
-            export layout_y=4
-            export WRITE_GROUP=2
-            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=2
-          elif [[ "${RUN}" = *gcafs ]]; then
+          elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]]; then
             export layout_x=4
             export layout_y=4
             export WRITE_GROUP=2
@@ -159,12 +154,7 @@ case "${fv3_res}" in
           if [[ "${RUN}" = *gdas ]]; then
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=15
-          elif [[ "${RUN}" = *gfs ]]; then
-            export layout_x=5
-            export layout_y=6
-            export WRITE_GROUP=2
-            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=15
-          elif [[ "${RUN}" = *gfs ]]; then
+          elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]]; then
             export layout_x=5
             export layout_y=6
             export WRITE_GROUP=2
@@ -188,12 +178,7 @@ case "${fv3_res}" in
             export nthreads_ufs=1
             export WRITE_GROUP=1
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=10
-          elif [[ "${RUN}" = *gfs ]]; then
-            export nthreads_fv3=2
-            export nthreads_ufs=2
-            export WRITE_GROUP=2
-            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=5
-          elif [[ "${RUN}" = *gcafs ]]; then
+          elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]]; then
             export nthreads_fv3=2
             export nthreads_ufs=2
             export WRITE_GROUP=2
@@ -221,10 +206,7 @@ case "${fv3_res}" in
           if [[ "${RUN}" = *gdas ]]; then
             export nthreads_fv3=1
             export nthreads_ufs=1
-          elif [[ "${RUN}" = *gfs ]]; then
-            export nthreads_fv3=2
-            export nthreads_ufs=2
-          elif [[ "${RUN}" = *gcafs ]]; then
+          elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]]; then
             export nthreads_fv3=2
             export nthreads_ufs=2
           fi
@@ -284,12 +266,7 @@ case "${fv3_res}" in
             export layout_y=12
             export WRITE_GROUP=2
             export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=15 #Note this should be 10 for WCOSS2
-          elif [[ "${RUN}" = *gfs ]]; then
-            export layout_x=12
-            export layout_y=16
-            export WRITE_GROUP=4
-            export WRTTASK_PER_GROUP_PER_THREAD_PER_TILE=20 #Note this should be 10 for WCOSS2
-          elif [[ "${RUN}" = *gcafs ]]; then
+          elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]]; then
             export layout_x=12
             export layout_y=16
             export WRITE_GROUP=4

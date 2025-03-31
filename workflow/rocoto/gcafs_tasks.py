@@ -141,7 +141,6 @@ class GCAFSTasks(Tasks):
         str
             XML representation of the task
         """
-
         input_path = self._template_to_rocoto_cycstring(self._base['COM_ATMOS_INPUT_TMPL'])
         restart_path = self._template_to_rocoto_cycstring(self._base['COM_ATMOS_RESTART_TMPL'])
 
@@ -154,7 +153,7 @@ class GCAFSTasks(Tasks):
             dep_dict = {'type': 'data', 'data': data}
             deps.append(rocoto.add_dependency(dep_dict))
 
-        # Calculate offset based on RUN = gfs | gdas
+        # Calculate offset based on RUN = gcafs | gdas
         interval = None
         if self.run in ['gcafs']:
             interval = self._base['interval_gfs']
@@ -164,8 +163,8 @@ class GCAFSTasks(Tasks):
 
         # Files from previous cycle
         files = ['@Y@m@d.@H0000.fv_core.res.nc'] + \
-                [f'@Y@m@d.@H0000.fv_core.res.tile{tile}.nc' for tile in range(1, self.n_tiles + 1)] + \
-                [f'@Y@m@d.@H0000.fv_tracer.res.tile{tile}.nc' for tile in range(1, self.n_tiles + 1)]
+                [f'@Y@m@d.@H0000.fv_core.res.tile{tile}.nc' for tile in range(1, ntiles + 1)] + \
+                [f'@Y@m@d.@H0000.fv_tracer.res.tile{tile}.nc' for tile in range(1, ntiles + 1)]
 
         for file in files:
             data = [f'{restart_path}/', file]
@@ -174,7 +173,7 @@ class GCAFSTasks(Tasks):
 
         dependencies = rocoto.create_dependency(dep_condition='and', dep=deps)
 
-        cycledef = 'gfs_seq'
+        cycledef = f'{self.run}_seq'
         resources = self.get_resource('aerosol_init')
         task_name = f'{self.run}_aerosol_init'
         task_dict = {'task_name': task_name,

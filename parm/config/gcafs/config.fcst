@@ -33,7 +33,7 @@ source "${EXPDIR}/config.ufs" ${string}
 
 # Forecast length for GFS forecast
 case ${RUN} in
-  *gcafs)
+  gfs|gcafs)
     # Convert comma-separated string into bash array
     IFS=', ' read -ra segments <<< "${FCST_SEGMENTS}"
     # Determine MIN and MAX based on the forecast segment
@@ -293,31 +293,13 @@ if [[ "${RUN}" =~ "gdas" ]] ; then # GDAS cycle specific parameters
     # Turn on dry mass adjustment in GDAS
     export adjust_dry_mass=".true."
 
-elif [[ "${RUN}" =~ "gfs" ]] ; then # GFS cycle specific parameters
+elif [[ "${RUN}" = "gfs" || "${RUN}" = "gcafs" ]] ; then # GFS or GCAFS cycle specific parameters
 
     # Write more variables to output
     export DIAG_TABLE="${PARMgfs}/ufs/fv3/diag_table"
 
     # Write gfs restart files to rerun fcst from any break point
     export restart_interval=${restart_interval_gfs:-12}
-
-    # Turn off dry mass adjustment in GFS
-    export adjust_dry_mass=".false."
-
-    # Write each restart file in 16 small files to save time
-    if [[ "${CASE}" = C768 ]]; then
-      export io_layout="4,4"
-    else
-      export io_layout="1,1"
-    fi
-
-elif [[ "${RUN}" =~ "gcafs" ]] ; then # GCAFS cycle specific parameters
-
-    # Write more variables to output
-    export DIAG_TABLE="${PARMgfs}/ufs/fv3/diag_table"
-
-    # Write gfs restart files to rerun fcst from any break point
-    export restart_interval=${restart_interval_gfs:-6}
 
     # Turn off dry mass adjustment in GFS
     export adjust_dry_mass=".false."
