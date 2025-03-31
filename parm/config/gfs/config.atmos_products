@@ -27,12 +27,6 @@ elif [[ "${RUN:-}" == "gfs" ]]; then
   export FLXGF="YES"  # Create interpolated sflux.1p00 file
   export WGNE="YES"  # WGNE products are created for first FHMAX_WGNE forecast hours
   export FHMAX_WGNE=180
-elif [[ "${RUN:-}" == "gcafs" ]]; then
-  export downset=2
-  export FHOUT_PGBS=${FHOUT_GFS:-3}  # Output frequency of supplemental gfs pgb file at 1.0 and 0.5 deg
-  export FLXGF="YES"  # Create interpolated sflux.1p00 file
-  export WGNE="YES"  # WGNE products are created for first FHMAX_WGNE forecast hours
-  export FHMAX_WGNE=180
 else
 
 export APCP_MSG="597"  # Message number for APCP in GFSv16.  Look for TODO in exglobal_atmos_products.sh
