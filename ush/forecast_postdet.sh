@@ -334,14 +334,14 @@ FV3_out() {
   restart_dates=()
 
   case ${RUN} in
-    gdas|enkfgdas|enkfgfs) # Copy restarts in the assimilation window for RUN=gdas|enkfgdas|enkfgfs
+    gdas|enkfgdas|enkfgfs|enkfgcafs) # Copy restarts in the assimilation window for RUN=gdas|enkfgdas|enkfgfs
       restart_date="${model_start_date_next_cycle}"
       while (( restart_date <= forecast_end_cycle )); do
         restart_dates+=("${restart_date:0:8}.${restart_date:8:2}0000")
         restart_date=$(date --utc -d "${restart_date:0:8} ${restart_date:8:2} + ${restart_interval} hours" +%Y%m%d%H)
       done
       ;;
-    gfs|gefs|sfs) # Copy restarts at the end of the forecast segment for RUN=gfs|gefs|sfs
+    gfs|gefs|sfs|gfs) # Copy restarts at the end of the forecast segment for RUN=gfs|gefs|sfs|gcafs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         restart_dates+=("${forecast_end_cycle:0:8}.${forecast_end_cycle:8:2}0000")
       fi
@@ -659,7 +659,7 @@ MOM6_out() {
                "${COMOUT_OCEAN_RESTART}/${restart_file}"
       done
       ;;
-    gfs|gefs|sfs) # Copy MOM6 restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs
+    gfs|gefs|sfs|gcafs) # Copy MOM6 restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         local restart_file
         echo "Copying MOM6 restarts for 'RUN=${RUN}' at ${forecast_end_cycle}"
@@ -732,7 +732,7 @@ CICE_postdet() {
         source_file="iceh_inst.${vdatestr}.nc"
         dest_file="${RUN}.ice.t${cyc}z.inst.f${fhr3}.nc"
         ;;
-      gfs|enkfgfs|gefs|sfs)
+      gfs|enkfgfs|gefs|sfs|gcafs)
         source_file="iceh_$(printf "%0.2d" "${FHOUT_ICE}")h.${vdatestr}.nc"
         dest_file="${RUN}.ice.t${cyc}z.${interval}hr_avg.f${fhr3}.nc"
         ;;
@@ -771,7 +771,7 @@ CICE_out() {
       ${NCP} "${DATArestart}/CICE_RESTART/${source_file}" \
              "${COMOUT_ICE_RESTART}/${target_file}"
       ;;
-    gfs|gefs|sfs) # Copy CICE restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs
+    gfs|gefs||gcafs) # Copy CICE restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs|gcafs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         local seconds source_file target_file
         echo "Copying CICE restarts for 'RUN=${RUN}' at ${forecast_end_cycle}"
@@ -1046,7 +1046,7 @@ CMEPS_out() {
         echo "Mediator restart '${DATArestart}/CMEPS_RESTART/${source_file}' not found."
       fi
       ;;
-    gfs|gefs|sfs) # Copy mediator restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs
+    gfs|gefs|sfs|gcafs) # Copy mediator restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         echo "Copying mediator restarts for 'RUN=${RUN}' at ${forecast_end_cycle}"
         local seconds source_file target_file
