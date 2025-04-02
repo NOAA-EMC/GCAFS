@@ -341,7 +341,7 @@ FV3_out() {
         restart_date=$(date --utc -d "${restart_date:0:8} ${restart_date:8:2} + ${restart_interval} hours" +%Y%m%d%H)
       done
       ;;
-    gfs|gefs|sfs|gfs) # Copy restarts at the end of the forecast segment for RUN=gfs|gefs|sfs|gcafs
+    gfs|gefs|sfs|gfs|gcafs) # Copy restarts at the end of the forecast segment for RUN=gfs|gefs|sfs|gcafs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         restart_dates+=("${forecast_end_cycle:0:8}.${forecast_end_cycle:8:2}0000")
       fi
@@ -484,7 +484,7 @@ WW3_out() {
   # Copy WW3 restarts at the end of the forecast segment to COM for RUN=gfs|gefs
   if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
     local restart_file
-    if [[ "${RUN}" == "gfs" || "${RUN}" == "gefs" ]]; then
+    if [[ "${RUN}" == "gfs" || "${RUN}" == "gefs" || "${RUN}" == "gcafs" ]]; then
       echo "Copying WW3 restarts for 'RUN=${RUN}' at ${forecast_end_cycle}"
       restart_file="${forecast_end_cycle:0:8}.${forecast_end_cycle:8:2}0000.restart.ww3.nc"
       ${NCP} "${DATArestart}/WW3_RESTART/${restart_file}" \
@@ -566,7 +566,7 @@ MOM6_postdet() {
 
   # Link output files
   case ${RUN} in
-    gfs|enkfgfs|gefs|sfs) # Link output files for RUN=gfs|enkfgfs|gefs|sfs
+    gfs|enkfgfs|gefs|sfs|gcafs) # Link output files for RUN=gfs|enkfgfs|gefs|sfs
       # Looping over MOM6 output hours
       local fhr fhr3 last_fhr interval midpoint vdate vdate_mid source_file dest_file
       for fhr in ${MOM6_OUTPUT_FH}; do
@@ -771,7 +771,7 @@ CICE_out() {
       ${NCP} "${DATArestart}/CICE_RESTART/${source_file}" \
              "${COMOUT_ICE_RESTART}/${target_file}"
       ;;
-    gfs|gefs||gcafs) # Copy CICE restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs|gcafs
+    gfs|gefs|gcafs) # Copy CICE restarts at the end of the forecast segment to COM for RUN=gfs|gefs|sfs|gcafs
       if [[ "${COPY_FINAL_RESTARTS}" == "YES" ]]; then
         local seconds source_file target_file
         echo "Copying CICE restarts for 'RUN=${RUN}' at ${forecast_end_cycle}"
