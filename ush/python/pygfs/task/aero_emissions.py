@@ -116,9 +116,13 @@ class AerosolEmissions(Task):
             logger.info(f'Processing forecast emissions for {self.start_date}')
 
             if self.task_config.AERO_EMIS_FIRE.lower() == 'gbbepx':
-                files = self._find_gbbepx_files(self.start_date, version=self.task_config.AERO_EMIS_FIRE_VERSION, vars=self.task_config.gbbepx_vars)
+                files = self._find_gbbepx_files(self.start_date,
+                    version=self.task_config.AERO_EMIS_FIRE_VERSION,
+                    vars=self.task_config.gbbepx_vars)
             elif self.task_config.AERO_EMIS_FIRE.lower() == 'qfed':
-                files = self._find_qfed_files(self.start_date, version=self.task_config.AERO_EMIS_FIRE_VERSION, vars=self.task_config.qfed_vars.split())
+                files = self._find_qfed_files(self.start_date,
+                version=self.task_config.AERO_EMIS_FIRE_VERSION,
+                vars=self.task_config.qfed_vars.split())
 
         # Set up template variables
         pprint(self.task_config)
@@ -130,12 +134,21 @@ class AerosolEmissions(Task):
             'historical': self.historical,
             'forecast_dates': self.task_config.get('forecast_dates', []),
             'qfed_vars': self.task_config.get('QFED_VARS',
-                ["co", "nox", "so2", "nh3", "bc", "oc"]),
+                                              ["co",
+                                              "nox",
+                                              "so2",
+                                              "nh3",
+                                              "bc",
+                                              "oc"]),
             'gbbepx_vars': self.task_config.get('GBBEPX_VARS',
-                ["co", "nox", "so2", "nh3", "bc", "oc"]),
+                                                ["co",
+                                                "nox",
+                                                "so2",
+                                                "nh3",
+                                                "bc",
+                                                "oc"]),
             "files_in": files
         }
-
 
         # Parse template and update task configuration
         logger.debug(f'Parsing YAML template: {yaml_template}')
