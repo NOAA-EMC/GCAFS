@@ -12,7 +12,7 @@ export machine="@MACHINE@"
 export RUN_ENVIR="emc"
 
 # Account, queue, etc.
-export ACCOUNT="@ACCOUNT@"
+export ACCOUNT=rda-arl-gpu #"@ACCOUNT@"
 export QUEUE="@QUEUE@"
 export QUEUE_SERVICE="@QUEUE_SERVICE@"
 export QUEUE_DTN="@QUEUE_DTN@"
@@ -59,7 +59,7 @@ export COMINnam=@COMINnam@
 export COMINukmet=@COMINukmet@
 
 # USER specific paths
-export HOMEDIR="@HOMEDIR@"
+export HOMEDIR="@STMP@" #"@HOMEDIR@"
 export STMP="@STMP@"
 export PTMP="@PTMP@"
 export NOSCRUB="@NOSCRUB@"
@@ -184,7 +184,7 @@ export DO_ICE="NO"
 DO_AERO="NO"
 export DO_PREP_OBS_AERO="NO"
 aero_fcst_runs="gdas gcafs" # When to run aerosol forecast: gdas, gcafs, or both
-aero_anl_runs="gdas gcafs" # When to run aerosol analysis: gdas, gcafs, or both
+aero_anl_runs="gdas" # When to run aerosol analysis: gdas, gcafs, or both
 export DO_AERO_FCST="YES"
 export DO_AERO_ANL="NO"
 export DOBNDPNT_WAVE="NO"

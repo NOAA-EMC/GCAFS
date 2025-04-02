@@ -19,8 +19,8 @@ if __name__ == '__main__':
     config = cast_strdict_as_dtypedict(os.environ)
 
     # Instantiate the emissions pre-processing task
-    emissions = AerosolEmissions(config)
-    emissions.initialize()
-    emissions.configure()
-    emissions.execute(emissions.task_config.DATA, emissions.task_config.APRUN)
-    emissions.finalize()
+    # emissions = AerosolEmissions(config)
+    # emissions.initialize()
+    # emissions.configure()
+    # emissions.execute(emissions.task_config.DATA, emissions.task_config.APRUN)
+    # emissions.finalize()

@@ -3,12 +3,11 @@
 import os
 import re
 import fnmatch
-from matplotlib.pylab import f
 import xarray as xr
 from logging import getLogger
 from typing import Dict, Any, Union
 from dateutil.rrule import DAILY, rrule
-from pprint import pformat
+from pprint import pformat, pprint
 
 from wxflow import (AttrDict,
                     parse_j2yaml,
@@ -22,7 +21,7 @@ from wxflow import (AttrDict,
 logger = getLogger(__name__.split('.')[-1])
 
 
-class AeroEmission(Task):
+class AerosolEmissions(Task):
     """Chemistry Emissions pre-processing Task
     """
 
@@ -41,7 +40,7 @@ class AeroEmission(Task):
         """
         super().__init__(config)
 
-        self.historical = bool(self.config.get('AERO_EMIS_FIRE_HIST', 0))
+        self.historical = bool(self.task_config.get('AERO_EMIS_FIRE_HIST', 0))
         nforecast_hours = self.task_config["FHMAX_GFS"]
         self.start_date = self.task_config["PDY"]
         self.end_date = self.start_date + to_timedelta(f'{nforecast_hours + 24}H')
@@ -92,41 +91,47 @@ class AeroEmission(Task):
         The configuration is processed through a Jinja2 template system
         and the resulting setup is stored in self.task_config.
         """
-        # Parse the YAML template
-        yaml_template = os.path.join(self.config.HOMEgfs, 'parm/chem/chem_emission.yaml.j2')
-        if not os.path.exists(yaml_template):
-            msg = f'YAML template not found: {yaml_template}'
-            logger.error(msg)
-            raise WorkflowException(msg)
+        # # Parse the YAML template
+        # yaml_template = os.path.join(self.task_config.HOMEgfs, 'parm/chem/chem_emission.yaml.j2')
+        # if not os.path.exists(yaml_template):
+        #     msg = f'YAML template not found: {yaml_template}'
+        #     logger.error(msg)
+        #     raise WorkflowException(msg)
+        # else:
+        #     logger.debug(f'Found YAML template: {yaml_template}')
+        #     yamlvars = parse_j2yaml(path=yaml_template, data=self.task_config)
+        #     self.task_config.append(yamlvars)
+        #     print(self.task_config)
 
         if self.historical:
             logger.info(f'Processing historical emissions for {self.start_date} to {self.end_date}')
 
             # find the forecast dates that are in the historical period for the given emission dataset
             for dates in self.forecast_dates:
-                if self.config.AERO_EMIS_FIRE.lower() == 'gbbepx':
-                    files = self._find_gbbepx_files(dates, version=self.config.AERO_EMIS_FIRE_VERSION)
-                elif self.config.AERO_EMIS_FIRE.lower() == 'qfed':
-                    files = self._find_qfed_files(dates, version=self.config.AERO_EMIS_FIRE_VERSION)
+                if self.task_config.AERO_EMIS_FIRE.lower() == 'gbbepx':
+                    files = self._find_gbbepx_files(dates, version=self.task_config.AERO_EMIS_FIRE_VERSION)
+                elif self.task_config.AERO_EMIS_FIRE.lower() == 'qfed':
+                    files = self._find_qfed_files(dates, version=self.task_config.AERO_EMIS_FIRE_VERSION)
         else:
             logger.info(f'Processing forecast emissions for {self.start_date}')
 
-            if self.config.AERO_EMIS_FIRE.lower() == 'gbbepx':
-                files = [self._find_gbbepx_files(self.start_date, version=self.config.AERO_EMIS_FIRE_VERSION)]
-            elif self.config.AERO_EMIS_FIRE.lower() == 'qfed':
-                files = [self._find_qfed_files(self.start_date, version=self.config.AERO_EMIS_FIRE_VERSION)]
+            if self.task_config.AERO_EMIS_FIRE.lower() == 'gbbepx':
+                files = self._find_gbbepx_files(self.start_date, version=self.task_config.AERO_EMIS_FIRE_VERSION, vars=self.task_config.gbbepx_vars)
+            elif self.task_config.AERO_EMIS_FIRE.lower() == 'qfed':
+                files = self._find_qfed_files(self.start_date, version=self.task_config.AERO_EMIS_FIRE_VERSION, vars=self.task_config.qfed_vars.split())
 
         # Set up template variables
+        pprint(self.task_config)
         tmpl_dict = {
-            'DATA': self.config.DATA,
-            'COMOUT_CHEM_HISTORY': self.config.COMOUT_CHEM_HISTORY,
-            'AERO_EMIS_FIRE_DIR': self.config.AERO_EMIS_FIRE_DIR,
-            'AERO_EMIS_FIRE_VERSION': self.config.AERO_EMIS_FIRE_VERSION,
+            'DATA': self.task_config.DATA,
+            'COMOUT_CHEM_HISTORY': self.task_config.COMOUT_CHEM_HISTORY,
+            'AERO_EMIS_FIRE_DIR': self.task_config.AERO_EMIS_FIRE_DIR,
+            'AERO_EMIS_FIRE_VERSION': self.task_config.AERO_EMIS_FIRE_VERSION,
             'historical': self.historical,
-            'forecast_dates': self.config.get('forecast_dates', []),
-            'qfed_vars': self.config.get('QFED_VARS',
+            'forecast_dates': self.task_config.get('forecast_dates', []),
+            'qfed_vars': self.task_config.get('QFED_VARS',
                 ["co", "nox", "so2", "nh3", "bc", "oc"]),
-            'gbbepx_vars': self.config.get('GBBEPX_VARS',
+            'gbbepx_vars': self.task_config.get('GBBEPX_VARS',
                 ["co", "nox", "so2", "nh3", "bc", "oc"]),
             "files_in": files
         }
@@ -146,7 +151,7 @@ class AeroEmission(Task):
         fh = FileHandler()
         for file_pair in self.task_config.data_in.copy:
             src = file_pair[0]
-            dst = os.path.join(self.config.DATA, os.path.basename(src))
+            dst = os.path.join(self.task_config.DATA, os.path.basename(src))
             logger.info(f'Copying {src} to {dst}')
             fh.copy(src, dst)
 
@@ -167,7 +172,9 @@ class AeroEmission(Task):
         Uses self.forecast_dates which should be populated during initialization
         Months are returned as strings with leading zeros (e.g., '01' for January)
         """
-        return set(f"{date.month:02d}" for date in self.forecast_dates)
+        months = set(f"{date.month:02d}" for date in self.forecast_dates)
+        years = set(date.year for date in self.forecast_dates)
+        return months, years
 
     @logit(logger)
     def execute(self, workdir: Union[str, os.PathLike]) -> None:
@@ -191,7 +198,7 @@ class AeroEmission(Task):
         """
         logger.info(f"Processing emission files in {workdir}")
 
-        if self.config.AERO_EMIS_FIRE.lower() == 'gbbepx':
+        if self.task_config.AERO_EMIS_FIRE.lower() == 'gbbepx':
             # Process each GBBEPx file
             for file_path in os.listdir(workdir):
                 if file_path.startswith('GBBEPx'):
@@ -217,7 +224,7 @@ class AeroEmission(Task):
                     logger.info(f"Saving processed file to: {output_path}")
                     ds.to_netcdf(output_path)
 
-        elif self.config.AERO_EMIS_FIRE.lower() == 'qfed':
+        elif self.task_config.AERO_EMIS_FIRE.lower() == 'qfed':
             logger.info("QFED files do not require processing, skipping execute step")
             return
 
@@ -240,10 +247,10 @@ class AeroEmission(Task):
         logger.info("Finalizing chemical emissions processing")
 
         fh = FileHandler()
-        data_dir = self.config.DATA
-        comout_dir = self.config.COMOUT_CHEM_HISTORY
+        data_dir = self.task_config.DATA
+        comout_dir = self.task_config.COMOUT_CHEM_HISTORY
 
-        if self.config.AERO_EMIS_FIRE.lower() == 'gbbepx':
+        if self.task_config.AERO_EMIS_FIRE.lower() == 'gbbepx':
             pattern = "processed_GBBEPx*.nc"
         else:
             pattern = "qfed*.nc"
@@ -284,7 +291,7 @@ class AeroEmission(Task):
         files_found = []
         # Find all possible files
         for mon in months:
-            emis_file_dir = os.join(self.config.AERO_EMIS_FIRE_DIR, version, mon)
+            emis_file_dir = os.path.join(self.task_config.AERO_EMIS_FIRE_DIR, version, mon)
             all_files = os.listdir(emis_file_dir)
 
             matching_files = []
@@ -310,40 +317,72 @@ class AeroEmission(Task):
 
         Parameters
         ----------
-        dates : str
-            Date for which to find GBBEPx files
+        dates : str or datetime
+            Date for which to find QFED files
+        vars : list
+            List of variables to search for (e.g., bc, oc, co, etc.)
         version : str
             Version of QFED files to search for
 
         Returns
         -------
         List[str]
-            List of GBBEPx files for the given date
+            List of QFED files for the given date
         """
-        logger.info(f'Finding GBBEPx files for {dates}')
+        logger.info(f'Finding QFED files for {dates}')
 
-        # Find all possible months
-        months = self._get_unique_months()
+        # ensure version is a string
+        version = str(version).zfill(3)
+
+        # Convert single date to list for consistent processing
+        if not isinstance(dates, list):
+            dates = [dates]
+
+        # Format dates properly
+        date_strings = [d.strftime('%Y%m%d') if hasattr(d, 'strftime') else str(d) for d in dates]
 
         files_found = []
-        # Find all possible files
-        for mon in months:
+
+        for date in dates:
+            # Extract year and month from the date
+            if hasattr(date, 'year') and hasattr(date, 'month'):
+                year = str(date.year)
+                month = f"{date.month:02d}"
+            else:
+                # If date is a string, try to parse it
+                date_str = str(date)
+                if len(date_str) >= 8:  # YYYYMMDD format
+                    year = date_str[:4]
+                    month = date_str[4:6]
+                else:
+                    logger.warning(f"Cannot parse date format: {date}")
+                    continue
+
+            emis_file_dir = os.path.join(self.task_config.AERO_EMIS_FIRE_DIR, year, month)
+
+            if not os.path.exists(emis_file_dir):
+                logger.warning(f"Directory does not exist: {emis_file_dir}")
+                continue
+
+            # Format date string for file matching
+            date_str = date.strftime('%Y%m%d') if hasattr(date, 'strftime') else str(date)
+            if len(date_str) > 8:  # Format may be YYYY-MM-DD
+                date_str = date_str.replace('-', '')
+
             for v in vars:
-                emis_file_dir = os.join(self.config.AERO_EMIS_FIRE_DIR, version, mon)
-                all_files = os.listdir(emis_file_dir)
+                # Match pattern like qfed2.emis_bc.{version}.20200118.nc4
+                v_pattern = f"qfed2.emis_{v}.{version}.{date_str}.nc4"
+                full_path = os.path.join(emis_file_dir, v_pattern)
 
-                matching_files = []
+                # If exact match exists
+                if os.path.exists(full_path):
+                    files_found.append(full_path)
+                    logger.debug(f"Found exact QFED file: {full_path}")
 
-                pattern = r"(\d{8}).nc"
-
-                for file_name in all_files:
-                    match = re.match(pattern, file_name)
-                    if match:
-                        create_date = match.group(1)
-
-                        if dates[0] <= create_date and dates[-1] <= create_date:
-                            matching_files.append(file_name)
-                files_found.extend(matching_files)
+                if not full_path:
+                    logger.warning(f"File not found: {full_path}")
+        if not files_found:
+            logger.warning(f"No QFED files found for dates {date_strings} and variables {vars}")
 
         return files_found
 
