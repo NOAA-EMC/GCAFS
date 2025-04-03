@@ -192,6 +192,20 @@ class GCAFSTasks(Tasks):
         return task
 
     def fcst(self):
+
+        fcst_map = {'forecast-only': self._fcst_forecast_only,
+                    'cycled': self._fcst_cycled}
+
+        try:
+            task = fcst_map[self.app_config.mode]()
+        except KeyError:
+            raise NotImplementedError(f'{self.app_config.mode} is not a valid type.\n'
+                                      f'Currently supported forecast types are:\n'
+                                      f'{" | ".join(fcst_map.keys())}')
+
+        return task
+
+    def _fcst_forecast_only(self):
         """
         Create a task for the deterministic forecast.
 
@@ -246,6 +260,76 @@ class GCAFSTasks(Tasks):
 
         seg_var_dict = {'seg': ' '.join([f"{seg}" for seg in range(0, num_fcst_segments)])}
         metatask_dict = {'task_name': f'{self.run}_fcst_mem000',
+                         'is_serial': True,
+                         'var_dict': seg_var_dict,
+                         'task_dict': task_dict
+                         }
+
+        task = rocoto.create_task(metatask_dict)
+
+        return task
+
+    def _fcst_cycled(self):
+
+        dep_dict = {'type': 'task', 'name': f'{self.run}_sfcanl'}
+        dep = rocoto.add_dependency(dep_dict)
+        dependencies = rocoto.create_dependency(dep=dep)
+
+        if self.options['do_aero_fcst']:
+            dep_dict = {'type': 'task', 'name': f'{self.run}_prep_emissions'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+
+        if self.options['do_wave']:
+            wave_job = 'waveprep' if self.options['app'] in ['ATMW'] else 'waveinit'
+            dep_dict = {'type': 'task', 'name': f'{self.run}_{wave_job}'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+
+        if self.options['do_jediocnvar']:
+            dep_dict = {'type': 'task', 'name': f'{self.run}_marineanlfinal'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+
+        if self.options['do_aero_anl']:
+            dep_dict = {'type': 'task', 'name': f'{self.run}_aeroanlfinal'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+
+        if self.options['do_jedisnowda']:
+            dep_dict = {'type': 'task', 'name': f'{self.run}_snowanl'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+
+        dependencies = rocoto.create_dependency(dep_condition='and', dep=dependencies)
+
+        if self.run in ['gdas']:
+            dep_dict = {'type': 'task', 'name': f'{self.run}_stage_ic'}
+            dependencies.append(rocoto.add_dependency(dep_dict))
+            dependencies = rocoto.create_dependency(dep_condition='or', dep=dependencies)
+
+        cycledef = 'gdas_half,gdas' if self.run in ['gdas'] else self.run
+
+        if self.run in ['gcafs']:
+            num_fcst_segments = len(self.options['fcst_segments']) - 1
+        else:
+            num_fcst_segments = 1
+
+        fcst_vars = self.envars.copy()
+        fcst_envars_dict = {'FCST_SEGMENT': '#seg#'}
+        for key, value in fcst_envars_dict.items():
+            fcst_vars.append(rocoto.create_envar(name=key, value=str(value)))
+
+        resources = self.get_resource('fcst')
+        task_name = f'{self.run}_fcst_seg#seg#'
+        task_dict = {'task_name': task_name,
+                     'resources': resources,
+                     'dependency': dependencies,
+                     'envars': fcst_vars,
+                     'cycledef': cycledef,
+                     'command': f'{self.HOMEgfs}/jobs/rocoto/fcst.sh',
+                     'job_name': f'{self.pslot}_{task_name}_@H',
+                     'log': f'{self.rotdir}/logs/@Y@m@d@H/{task_name}.log',
+                     'maxtries': '&MAXTRIES;'
+                     }
+
+        seg_var_dict = {'seg': ' '.join([f"{seg}" for seg in range(0, num_fcst_segments)])}
+        metatask_dict = {'task_name': f'{self.run}_fcst',
                          'is_serial': True,
                          'var_dict': seg_var_dict,
                          'task_dict': task_dict

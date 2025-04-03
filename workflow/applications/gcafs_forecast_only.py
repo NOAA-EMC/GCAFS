@@ -1,19 +1,34 @@
+"""
+GCAFS forecast-only application configuration module.
+
+This module defines the configuration for running the Global Chemical Aerosol
+Forecast System (GCAFS) in forecast-only mode without data assimilation cycling.
+"""
+
 from applications.applications import AppConfig
 from typing import Dict, Any
 from wxflow import Configuration
 
 
-class GCAFSAppConfig(AppConfig):
+class GCAFSForecastOnlyAppConfig(AppConfig):
     """
     Class to define GCAFS (Global Chemical Aerosol Forecast System) configurations.
 
-    This class handles configuration management for the GCAFS application, including
-    task scheduling, run options, and application-specific settings.
+    This class handles configuration management for the GCAFS application in
+    forecast-only mode, including task scheduling, run options, and
+    application-specific settings.
 
     Parameters
     ----------
     conf : Configuration
         The configuration object containing all GCAFS settings
+
+    Attributes
+    ----------
+    run : str
+        The name of the current run
+    runs : list
+        List of all available runs
     """
 
     def __init__(self, conf: Configuration):
