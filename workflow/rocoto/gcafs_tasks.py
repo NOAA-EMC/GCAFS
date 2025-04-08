@@ -128,6 +128,66 @@ class GCAFSTasks(Tasks):
 
         return task
 
+    def prep(self):
+        """
+        Create a task for preparing data for analysis.
+
+        This task prepares the necessary data files for the analysis stage,
+        including the observation data and background fields.
+
+        Returns
+        -------
+        str
+            XML representation of the task
+        """
+        resources = self.get_resource('prep')
+        task_name = f'{self.run}_prep'
+        task_dict = {'task_name': task_name,
+                     'resources': resources,
+                     'envars': self.envars,
+                     'cycledef': 'gdas' if self.run in ['gdas','gcafs'] else self.run,
+                     'command': f'{self.HOMEgfs}/jobs/rocoto/prep.sh',
+                     'job_name': f'{self.pslot}_{task_name}_@H',
+                     'log': f'{self.rotdir}/logs/@Y@m@d@H/{task_name}.log',
+                     'maxtries': '&MAXTRIES;'
+                     }
+        task = rocoto.create_task(task_dict)
+
+        return task
+
+    def anal(self):
+        """
+        Create a task for the analysis step.
+
+        This task performs data assimilation to generate analysis fields
+        by combining observations with the background forecast.
+
+        Returns
+        -------
+        str
+            XML representation of the task
+        """
+        resources = self.get_resource('anal')
+
+        deps = []
+        dep_dict = {'type': 'task', 'name': f'{self.run}_prep'}
+        deps.append(rocoto.add_dependency(dep_dict))
+        dependencies = rocoto.create_dependency(dep=deps)
+
+        task_name = f'{self.run}_anal'
+        task_dict = {'task_name': task_name,
+                     'resources': resources,
+                     'dependency': dependencies,
+                     'envars': self.envars,
+                     'cycledef': 'gdas' if self.run in ['gdas','gcafs'] else self.run,
+                     'command': f'{self.HOMEgfs}/jobs/rocoto/anal.sh',
+                     'job_name': f'{self.pslot}_{task_name}_@H',
+                     'log': f'{self.rotdir}/logs/@Y@m@d@H/{task_name}.log',
+                     'maxtries': '&MAXTRIES;'
+                     }
+        task = rocoto.create_task(task_dict)
+
+        return task
 
     def aerosol_init(self):
         """
