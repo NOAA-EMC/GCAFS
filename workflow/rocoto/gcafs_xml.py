@@ -33,12 +33,14 @@ class GCAFSForecastOnlyRocotoXML(RocotoXML):
         sdate_gfs_str = sdate_gfs.strftime("%Y%m%d%H%M")
         edate_gfs_str = edate_gfs.strftime("%Y%m%d%H%M")
         interval_gfs_str = timedelta_to_HMS(interval_gfs)
-        strings.append(f'\t<cycledef group="gfs">{sdate_gfs_str} {edate_gfs_str} {interval_gfs_str}</cycledef>')
+        # Change "gfs" to "gcafs" in cycle definitions
+        strings.append(f'\t<cycledef group="gcafs">{sdate_gfs_str} {edate_gfs_str} {interval_gfs_str}</cycledef>')
 
         date2_gfs = sdate_gfs + interval_gfs
         if date2_gfs <= edate_gfs:
             date2_gfs_str = date2_gfs.strftime("%Y%m%d%H%M")
-            strings.append(f'\t<cycledef group="gfs_seq">{date2_gfs_str} {edate_gfs_str} {interval_gfs_str}</cycledef>')
+            # Change "gfs_seq" to "gcafs_seq" in cycle definitions
+            strings.append(f'\t<cycledef group="gcafs_seq">{date2_gfs_str} {edate_gfs_str} {interval_gfs_str}</cycledef>')
 
         if self._base['DO_METP']:
             if interval_gfs < to_timedelta('24H'):
