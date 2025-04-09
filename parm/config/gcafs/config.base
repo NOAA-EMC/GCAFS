@@ -12,7 +12,7 @@ export machine="@MACHINE@"
 export RUN_ENVIR="emc"
 
 # Account, queue, etc.
-export ACCOUNT=rda-arl-gpu #"@ACCOUNT@"
+export ACCOUNT="@ACCOUNT@"
 export QUEUE="@QUEUE@"
 export QUEUE_SERVICE="@QUEUE_SERVICE@"
 export QUEUE_DTN="@QUEUE_DTN@"
