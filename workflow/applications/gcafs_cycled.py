@@ -128,7 +128,10 @@ class GCAFSCycledAppConfig(AppConfig):
             configs += ['marineanlchkpt', 'marineanlfinal']
 
         # Add GCAFS-specific aerosol configs by default
-        configs += ['aero', 'prep_emissions']
+        if options['do_aero_fcst']:
+            configs += ['aero', 'prep_emissions']
+            # Don't include aerosol_init for cycled runs
+            # aerosol_init is only needed for forecast-only mode
 
         if options['do_ocean'] or options['do_ice']:
             configs += ['oceanice_products']
@@ -303,7 +306,8 @@ class GCAFSCycledAppConfig(AppConfig):
                     # Always add aerosol tasks for GCAFS
                     if options['do_aero_fcst']:
                         task_names[run] += ['prep_emissions']
-                        task_names[run] += ['aerosol_init']
+                        # Remove aerosol_init for cycled mode
+                        # aerosol_init is only needed for forecast-only mode
 
                     if options['do_wave']:
                         task_names[run] += wave_prep_tasks
