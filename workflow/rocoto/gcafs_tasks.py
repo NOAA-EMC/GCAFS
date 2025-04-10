@@ -655,8 +655,6 @@ class GCAFSTasks(Tasks):
 
             dependencies.append(rocoto.create_dependency(dep_condition='or', dep=aerosol_init_deps))
 
-
-
         dependencies = rocoto.create_dependency(dep_condition='and', dep=dependencies)
 
         num_fcst_segments = len(self.options['fcst_segments']) - 1
