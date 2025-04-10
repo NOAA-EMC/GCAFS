@@ -640,14 +640,22 @@ class GCAFSTasks(Tasks):
             dependencies.append(rocoto.add_dependency(dep_dict))
 
         if self.options['do_aero_fcst']:
+            # Add prep_emissions dependency
             dep_dict = {'type': 'task', 'name': f'{self.run}_prep_emissions'}
             dependencies.append(rocoto.add_dependency(dep_dict))
 
-            # Add aerosol_init dependency with cycle offset
+            # Add aerosol_init dependency with cycle offset in nested or
+            aerosol_init_deps = []
             interval = self._base['interval_gfs'] if self.run in ['gcafs'] else self._base['interval']
             offset = timedelta_to_HMS(-interval)
             dep_dict = {'type': 'task', 'name': f'{self.run}_aerosol_init', 'offset': offset}
-            dependencies.append(rocoto.add_dependency(dep_dict))
+            aerosol_init_deps.append(rocoto.add_dependency(dep_dict))
+            dep_dict = {'type': 'cycleexist', 'condition': 'not', 'offset': offset}
+            aerosol_init_deps.append(rocoto.add_dependency(dep_dict))
+
+            dependencies.append(rocoto.create_dependency(dep_condition='or', dep=aerosol_init_deps))
+
+
 
         dependencies = rocoto.create_dependency(dep_condition='and', dep=dependencies)
 
